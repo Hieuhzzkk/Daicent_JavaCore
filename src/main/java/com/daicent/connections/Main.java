@@ -23,7 +23,9 @@ public class Main {
 			System.out.println("2. DISPLAY ALL");
 			System.out.println("3. SEARCH ID");
 			System.out.println("4. SEARCH QUANTITY");
-			System.out.println("5. ZXCZXCXC");
+			System.out.println("5. SEARCH CATE");
+			System.out.println("6. SEARCH CATEDETAIL");
+			System.out.println("7. SEARCH AllCATE");
 			System.out.println("0. EXIT");
 			System.out.println("ENTER YOUR CHOICE: ");
 
@@ -59,7 +61,19 @@ public class Main {
 				con.serachByQuantity(quantity);
 				break;
 			case 5:
-				con.mapCategory();
+				System.out.println("ENTER ID CATE: ");
+				int idCate = Integer.parseInt(br.readLine());
+				con.selectByIdCategory(idCate);
+				break;
+			case 6:
+				System.out.println("ENTER ID CATEDETAIL: ");
+				int idCateDtail = Integer.parseInt(br.readLine());
+				con.findByCategoryDetail(idCateDtail);
+				break;
+			case 7:
+				System.out.println("ENTER ID ALLCATE: ");
+				int idCates = Integer.parseInt(br.readLine());
+				con.findAllByCategory(idCates);
 				break;
 			case 0:
 				con.close();

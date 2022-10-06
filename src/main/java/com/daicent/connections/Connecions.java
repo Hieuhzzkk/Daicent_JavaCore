@@ -13,7 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-public class Connecions implements Comparable<Category>{
+public class Connecions {
 	PreparedStatement ps;
 	Connection connection;
 	Statement stmt;
@@ -88,69 +88,66 @@ public class Connecions implements Comparable<Category>{
 		System.out.println("Connection close");
 	}
 	
-	public ArrayList<CategoryDetail> selectByIdCategory(Category t) {
+	public ArrayList<CategoryDetail> selectByIdCategory(int idCate) {
 		List<CategoryDetail> lisCategoryDetails = new ArrayList<CategoryDetail>();
 		try {
-			String url ="jdbc:mySQL://localhost:3308/shop";
-			String userName="root";
-			String password ="123456";
-			connection = DriverManager.getConnection(url, userName, password);
 			String mysql = "SELECT * FROM shop.categorydetail where idCate =?;";
 			PreparedStatement preStatemnt = connection.prepareStatement(mysql);
-			preStatemnt.setInt(1, t.getIdCate());
+			preStatemnt.setInt(1, idCate);
 			ResultSet resultSet = preStatemnt.executeQuery();
-			int count = 0;
 			while (resultSet.next()) {
 				int idCategoryDetail = resultSet.getInt("idCategoryDetail");
 				String nameCategoryDetail = resultSet.getString("name");
 				int idCategory = resultSet.getInt("idCate");
 				CategoryDetail categoryDetail = new CategoryDetail(idCategoryDetail, nameCategoryDetail, idCategory);
 				lisCategoryDetails.add(categoryDetail);
-				count++;
-			}
-			if (count > 0) {
-				System.out.println("There are " + count + " CategoryDetail!");
-			} else {
-				System.out.println("No CategoryDetail!!");
+				System.out.printf("%-15s%-20s%5s\n",idCategoryDetail, nameCategoryDetail, idCategory);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return (ArrayList<CategoryDetail>) lisCategoryDetails;
 	}
-	public TreeMap<Category, ArrayList<CategoryDetail>> mapCategory(){
-		Map <Category, ArrayList<CategoryDetail>> map = new TreeMap<Category, ArrayList<CategoryDetail>> ();
-		try {
-			String url ="jdbc:mySQL://localhost:3308/shop";
-			String userName="root";
-			String password ="123456";
-			connection = DriverManager.getConnection(url, userName, password);
-			String mysql = "SELECT * FROM shop.category;";
-			PreparedStatement preStatemnt = connection.prepareStatement(mysql);
-			ResultSet resultSet = preStatemnt.executeQuery();
-			while (resultSet.next()) {
-				int idCategory = resultSet.getInt("idCate");
-				String nameCategory = resultSet.getString("name");
-				Category category = new Category(idCategory, nameCategory);
-				ArrayList<CategoryDetail> listCategoryDetails =selectByIdCategory(category);
-				
-				map.put(category,  listCategoryDetails);
-			}
-			Set<Category> setCategory = map.keySet();
-	        for (Category key : setCategory) {
-	        	System.out.println(key.toString());
-	        	ArrayList<CategoryDetail> list = map.get(key);
-	           for(CategoryDetail cd:list) {
-	        	   System.out.println(cd.toString());
-	           }
-	        }			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return (TreeMap<Category, ArrayList<CategoryDetail>>) map;
-	}
-	public int compareTo(Category o) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+
+	
+	 public List<Products>findByCategoryDetail(int idCateDetail){
+	        List<Products> products = new ArrayList<>();
+	        try (
+	            PreparedStatement preparedStatement = connection.prepareStatement(
+	            		"select id, namePro, quantity from shop.products where idCateDetail =?");) {
+	            preparedStatement.setInt(1, idCateDetail);
+	            ResultSet rs = preparedStatement.executeQuery();
+	            while (rs.next()) {
+	                int id = rs.getInt("id");
+	                String name = rs.getString("namePro");
+	                int quantity= rs.getInt("quantity");
+	                products.add(new Products(id, name,idCateDetail,quantity));
+	                System.out.printf("%-15s%-20s%-20s%5s\n",id, name,idCateDetail,quantity);
+
+	            }
+	        } catch (SQLException e) {
+	            e.printStackTrace();;
+	        }
+	        return products;
+	    }
+	 public List<Products> findAllByCategory(int idCate) {
+	       List<Products>products=new ArrayList<>();
+	        try (
+	             PreparedStatement preparedStatement = connection.prepareStatement(
+	            		" select p.namePro, p.quantity, p.idCateDetail from shop.products p, shop.categorydetail cd, shop.category c \r\n"
+	             		+ "where p.idCateDetail = cd.idCategoryDetail and cd.idCate = c.idCate and c.idCate = ?;");) {
+	            preparedStatement.setInt(1, idCate);
+	            ResultSet rs = preparedStatement.executeQuery();
+	            while (rs.next()) {
+	                String name = rs.getString("namePro");
+	                int quantity = rs.getInt("quantity");
+	                int idCateDetail =rs.getInt("idCateDetail");
+	                products.add(new Products(name,idCateDetail,quantity));
+	                System.out.printf("%-15s%-20s%-20s%5s\n", name,quantity,idCateDetail,idCate);
+	            }
+	        } catch (SQLException e) {
+	        	e.printStackTrace();
+	        }
+	        return products;
+	    }
 }

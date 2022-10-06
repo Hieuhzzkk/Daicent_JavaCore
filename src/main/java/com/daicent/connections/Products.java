@@ -12,6 +12,14 @@ public class Products {
 		this.idCateDetail = idCateDetail;
 		this.quantity = quantity;
 	}
+	
+	public Products(String namePro, int idCateDetail, int quantity) {
+		super();
+		this.namePro = namePro;
+		this.idCateDetail = idCateDetail;
+		this.quantity = quantity;
+	}
+
 	public int getId() {
 		return id;
 	}
